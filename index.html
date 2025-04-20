@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Demo copy task - Strategies in VWM</title>
+    <script src="jspsych.js"></script>
+
+    <script src="plugin-html-keyboard-response.js"></script>
+    <script src="plugin-image-button-response.js"></script>
+    <script src="plugin-image-keyboard-response.js"></script>
+    <script src="plugin-html-button-response.js"></script>
+    <script src="plugin-survey-text.js"></script>
+    <script src="plugin-survey-likert.js"></script>
+
+    <script src="plugin-html-slider-response.js"></script>
+    <script src="plugin-fullscreen.js"></script>    
+    <script src="plugin-preload.js"></script>
+    <!-- <script src="plugin-pipe.js"></script> -->
+    
+    <script src="plugin-copying-task.js"></script>
+
+    <script src="fabric.js"></script>
+
+    <script src="twelve_copy_task_layouts.js"></script>
+    <script src="betweter_logo.js"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+
+
+    <link href="jspsych.css" rel="stylesheet" type="text/css"></link>
+
+  </head>
+  <body oncontextmenu="return false;"></body>   <!-- disables right click! -->
+  <script> 
+    // // Set the canvas size in pixel
+    const canvas_width_px = 1700;
+
+    const button_format = '<button class="jspsych-btn" style = "font-size:30px; padding: 3px 20px; background-color:rgb(240,240,240)">%choice%</button>'
+
+    // set the theme
+
+    const exp_theme = 'dark' // either 'light' or 'dark'
+
+    let bg_col, fg_col;
+    if (exp_theme == 'dark'){
+      bg_col = 'black';
+      fg_col = 'white';
+    } 
+    if (exp_theme == 'light'){
+      bg_col = 'white'
+      fg_col = 'black'
+    } 
+    let instruction_image = `Instructions copy task at Betweter (${exp_theme} theme).png`;
+    
+    document.head.innerHTML += `
+      <style>
+        body {background-color: ${bg_col}; color: ${fg_col};}
+      </style>
+      <style> h1 {color: ${fg_col};} </style>
+      <style> h2 {color: ${fg_col};} </style>
+      <style> h3 {color: ${fg_col};} </style>
+      <style> p  {color: ${fg_col};} </style>
+      `
+
+    const informed_consent_svg = 'Informed consent.svg'; 
+
+    const jsPsych = initJsPsych({
+
+    });
+
+
+    
+
+
+    let enter_fullscreen = {
+      type: jsPsychFullscreen,
+      message: '<div style = "position:relative; top:-100px; left:50%; transform: translate(-50%, -50%);"> '+ betweter_logo_svg +'</div>'+ '<h2>Switch to FULLSCREEN to begin.</h2><h3><i>Schakel over naar volledige scherm om te beginnen.</i></h3>',
+
+      fullscreen_mode: true,
+      delay_after:0,
+      button_label: "FULLSCREEN",
+      on_start: function(){
+        let d = new Date()
+        jsPsych.data.addProperties({exp_start_UTC_time: d.getTime() })
+        jsPsych.data.addProperties({exp_start_time: d.toString() })
+      }
+    };
+    
+    let preload_trial = {
+      type: jsPsychPreload,
+      images:[instruction_image, informed_consent_svg],
+    };
+
+    let exit_fullscreen = {
+      type: jsPsychFullscreen,
+      fullscreen_mode: false,
+      delay_after: 0
+    }
+
+    ////////////////
+    // let informed_consent_original = {
+    //   type: jsPsychHtmlButtonResponse,
+    //   stimulus:'<div style = "position:fixed; top:80px; left:50%; transform: translate(-50%, -50%);"> '+ betweter_logo_svg +'</div>'+'<img src = "'+informed_consent_svg+'" width = 1600 ></img>',
+    //   choices:['Akkoord / Agreed'],
+    //   button_html: button_format,
+    //   prompt: "<p>Als je niet akkoord bent, kun je helaas niet meedoen.</p><p>If you disagree, you can unfortunately not participate.</p>",
+    //   // on_load: function (params){
+    //   //               var button = document.getElementById("jspsych-image-button-response-btngroup");
+    //   //               button.style.visibility = "hidden";
+    //   //               setTimeout(function() {
+    //   //               button.style.visibility = "visible";
+    //   //               }, 5000);
+    //   //           },
+    //   on_finish: function(data){
+    //     data.stimulus = "informed consent form"
+    //   }
+    // };
+
+    let demo_info = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus:'<h1>This is a demo of the copying task for a <a href="https://osf.io/rm423/" target="_blank">research project</a> by Andre Sahakian.</h1><h3>When you finish the task you will have the option to save your data in a public data repository</h3>',
+      choices:['Continue'],
+      button_html: button_format,
+      // on_load: function (params){
+      //               var button = document.getElementById("jspsych-image-button-response-btngroup");
+      //               button.style.visibility = "hidden";
+      //               setTimeout(function() {
+      //               button.style.visibility = "visible";
+      //               }, 5000);
+      //           },
+      on_finish: function(data){
+        data.stimulus = "info page"
+      }
+    };
+
+
+
+    let age_gender_q = {
+      type: jsPsychSurveyText,
+      preamble: '<div style = "position:fixed; top:80px; left:50%; transform: translate(-50%, -50%);">'+ betweter_logo_svg +'</div>',
+      questions: [
+        {prompt:'<h2>What is your age?<br></h2><h3><i>Wat is je leeftijd?</i></h3>', placeholder: '...', rows:1, columns: 4, required:true},
+        {prompt:'<br><br><h2>What is your gender?<br></h2><h3><i>Wat is je geslacht?</i></h3>', placeholder: '...', rows:1, columns:10, required:true}
+      ],
+      on_finish: function(data){
+          data.stimulus = "Age and Gender"
+          let rand_id = jsPsych.randomization.randomID(15);
+          let rand_number_str = '' + Math.floor(Math.random()*10) + Math.floor(Math.random()*10) + Math.floor(Math.random()*10)
+          let filename = rand_number_str  + '_' + rand_id + '.csv';
+
+          jsPsych.data.addProperties({subject: rand_id})
+          jsPsych.data.addProperties({filename: filename})
+        }
+ 
+    };
+
+    let game_q = '<h2>How many hours per week do you play (computer)games?</h2><h3><i>Hoeveel uur per week speel je (computer)spellen?</i></h3>'
+    let game_labels = ['<h3>Rather not say</h3><h3><i>Zeg ik liever niet</i></h3>', '<h3>0</h3>', '<h3>5</h3>', '<h3>10</h3>', '<h3>20</h3>','<h3>> 20</h3>']
+
+    let sleep_q = '<h2>How many hours did you sleep last night?</h2><h3><i>Hoe veel uur heb je vannacht geslapen?</i></h3>'
+    let sleep_labels = ['<h3>Rather not say</h3><h3><i>Zeg ik liever niet</i></h3>','<h3>3</h3>', '<h3>4</h3>', '<h3>5</h3>', '<h3>6</h3>','<h3>7</h3>', '<h3>8</h3>', '<h3>> 9</h3>']
+
+    var questions_sleep_game = {
+      type: jsPsychSurveyLikert,
+      preamble:'<div style = "position:fixed; top:80px; left:50%; transform: translate(-50%, -50%);">'+ betweter_logo_svg +'</div>', 
+      questions: [
+        {prompt: game_q, name: 'Gaming', labels: game_labels, required:true},
+        {prompt: sleep_q, name: 'Sleep', labels: sleep_labels, required:true},
+      ],
+      randomize_question_order: false,
+
+
+    };
+
+
+    var competetive_q = {
+        type: jsPsychHtmlSliderResponse,
+        stimulus: '<h2>&emsp;&emsp;&emsp;How competetive are you?&emsp;&emsp;&emsp;</h2><h3><i>Hoe competitief ben je?</i></h3>',
+        require_movement: true,
+        prompt:'<div style = "position:fixed; top:80px; left:50%; transform: translate(-50%, -50%);">'+ betweter_logo_svg +'</div>', 
+        labels: ['<h3>Not at all<br><i>Helemaal niet</i></h3>', '<h3>Very<br><i>Heel erg</i></h3>'],
+        on_finish: function(data){
+          data.stimulus = "How competetive are you?"
+        }
+    };
+
+    let message1 = {
+      type: jsPsychImageButtonResponse,
+      stimulus: instruction_image,
+      stimulus_width: 1400,
+      prompt: '<div style = "position:fixed; top:80px; left:50%; transform: translate(-50%, -50%);">'+ betweter_logo_svg +'</div>'+'<h3>This is what you need to do.</h3><h3>If you think you got it, click on the button to practice.</h3>',
+      choices:['Practice!'],
+      button_html: button_format,
+    };
+
+    let message2 = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: "<h3>Perfect! Let's make it a little harder.</h3>",
+      choices:['Practice again!'],
+      button_html: button_format,
+    };
+
+
+    let message3 = {
+      type: jsPsychHtmlButtonResponse,
+      // stimulus: "Great! Now you are ready for the real deal.\nThere will be 20 puzzles.\nGood luck!",
+      stimulus: function(){
+        let pervious_completion_time = jsPsych.data.get().last().select('rt').mean()/1000;
+        return "<h3>Well done! You finished this last practice round in "+pervious_completion_time.toFixed(2)+" seconds. Not bad, but surely you can do better!</h3>" +
+               "<h3>You are now ready for the real deal! There will be 10 rounds.</h3>" + 
+               "<h3> </h3>"+
+               "<h1>Get ready and click below to start!</h1>"
+      },
+      choices:['START'],
+      post_trial_gap:300,
+      button_html: button_format,
+    };
+
+    let message4 = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "<h3>Nice, here's the next one!</h3>",
+      trial_duration:500,
+      choices:"NO_KEYS",
+    };
+    
+
+    let message5 = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: function(){
+        let personal_file_name = jsPsych.data.get().select('filename').values[0]
+        return '<h1>All done! Thank you for participating!<br><br>You can view your data here: <a href="https://osf.io/vk9q3/files/osfstorage" target="_blank">osf.io/vk9q3</a></h1>'+
+        `<h3>This run was saved under the file name: ${personal_file_name}</h3>`+
+        '<h3>Feel free to give it another go.</h3>'
+      },
+      choices:"NO_KEYS",
+    };
+
+    let message6 = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: "Good job! Take a short break and click next to continue",
+      choices:['Next'],
+    };
+
+    let message7 = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: "From now on the rest of the puzzles will be identical. Click next to continue",
+      choices:['Next'],
+    };
+
+    let message8 = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: "All following puzzles are still identical. Click next to continue",
+      choices:['Next'],
+    };
+
+
+
+    let message_you_are_done = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: "<h1>Awesome! That was it, you're done!</h1><h3>Click below to see how you did!</h3>",
+      trial_duration: 5000,
+      choices:['Show my performance!'],
+      prompt: "You will be redirected automatically in 5 secodns.",
+      data: {
+        'avg_completion_time': () => jsPsych.data.get().filter({"test_or_practice":'test'}).select('rt').mean(),
+        'min_completion_time': () => jsPsych.data.get().filter({"test_or_practice":'test'}).select('rt').min(),
+        'max_completion_time': () => jsPsych.data.get().filter({"test_or_practice":'test'}).select('rt').max(),
+        'total_completion_time': () => jsPsych.data.get().filter({"test_or_practice":'test'}).select('rt').sum(),
+      },
+    };
+
+
+    let performance_feedback = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: function(){
+        let avg_completion_time = jsPsych.data.get().filter({"test_or_practice":'test'}).select('rt').mean()/1000;
+        let min_completion_time = jsPsych.data.get().filter({"test_or_practice":'test'}).select('rt').min()/1000;
+        let max_completion_time = jsPsych.data.get().filter({"test_or_practice":'test'}).select('rt').max()/1000;
+        let total_completion_time = jsPsych.data.get().filter({"test_or_practice":'test'}).select('rt').sum()/1000;
+
+        return "<h2>Here is how you did:</h2>"+
+               "<h1>Your TOTAL time was: "+total_completion_time.toFixed(2)+" s.</h1>"+
+               "<h3>Your average time per ROUND was: "+avg_completion_time.toFixed(2)+" s.</h3>"+
+               "<h3>Your QUICKEST time was: "+min_completion_time.toFixed(2)+" s.</h3>" +
+               "<br><h2>Click on the button below if you want to save and view your data<br><br>on an online public OSF data repository (https://osf.io/vk9q3/)"+
+               '<br><h3>If not, you can close this page now.</h3>'
+              },
+      choices:["Upload my data to a public repository!"],
+      button_html: button_format,
+
+      on_load: function (params){
+              var button = document.getElementById("jspsych-image-button-response-btngroup");
+              button.style.visibility = "hidden";
+              setTimeout(function() {
+              button.style.visibility = "visible";
+              }, 5000);
+          },
+    };
+
+    
+    let countdown_go = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "<h1>GO!</h1>",
+      trial_duration: 500,
+      post_trial_gap: 250,
+      choices:"NO_KEYS",
+    }; 
+
+    const all_layouts_indices = [0,1,2,3,4,5,6,7,8,9];
+
+    const selected_layout_indices = jsPsych.randomization.sampleWithoutReplacement(all_layouts_indices, 10) // Shuffle the 10 for the experimental trials
+
+    let createCopyTaskTrial = function(layout_idx, test_or_practice, enable_covers, prompt){
+
+      let resource_grid_contents = twelve_copy_task_layouts[layout_idx]["resource_grid"]
+      let model_grid_contents = twelve_copy_task_layouts[layout_idx]["model_grid"]
+
+      // copying task with stimuli adapted from Arnoult (1955) (https://doi.org/10.1037/h0044049)
+      let copying_task = {
+          type: jsPsychCopyingTask,
+          model_grid_contents: model_grid_contents,
+          resource_grid_contents: resource_grid_contents,
+          prompt: prompt,
+          grid_colors:[fg_col, fg_col, fg_col,],
+          canvas_color: bg_col,
+          canvas_width: canvas_width_px,
+          mid_border_specs:{width: 0.17,left: 0.35,color: bg_col, },
+          item_file_type:'svg_path',                       // NOTE THIS PARAMETER
+          data: { 
+            'trial_label': 'copying_task',
+            'test_or_practice': test_or_practice,
+            'layout_idx': layout_idx
+          },
+          enable_covers: enable_covers,
+      }
+      return copying_task
+    }
+
+    
+
+
+    // save data to datapipe
+    const save_data = {
+      type: jsPsychPipe,
+      action: "save",
+      experiment_id: "pvpyTyHz21Ih", 
+      filename: function(){
+        return jsPsych.data.get().select('filename').values[0]
+      },
+      data_string: ()=> jsPsych.data.get().csv(),
+    };
+    
+
+
+
+    /*set up experiment structure*/
+    const timeline = [];
+    timeline.push(demo_info)
+    timeline.push(enter_fullscreen, preload_trial)
+    timeline.push(age_gender_q);
+    timeline.push(questions_sleep_game, competetive_q)
+    timeline.push(message1);
+    timeline.push(createCopyTaskTrial(10, 'practice', false, '<h3>Copy all the items!</h3>') );
+    timeline.push(message2);
+    timeline.push(createCopyTaskTrial(11, 'practice', true, '<h3>Remember: there are always SIX items to copy!</h3>'));
+    timeline.push(message3)
+    timeline.push(countdown_go) // countdown_3, countdown_2, countdown_1, 
+
+    for (let i=0; i < 10; i++) {
+        timeline.push(createCopyTaskTrial(selected_layout_indices[i], 'test', true, '<h3>Round '+(i+1)+'/10</h3>')); 
+        if (i < 9 ) {
+          timeline.push(message4)
+        }
+    }
+
+    timeline.push(message_you_are_done)
+    timeline.push(exit_fullscreen)
+    timeline.push(performance_feedback)
+    timeline.push(save_data)
+    timeline.push(message5)
+    
+
+    /*start experiment*/
+    jsPsych.run(timeline);
+
+
+  </script>
+</html>
