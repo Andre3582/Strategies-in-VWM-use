@@ -26,14 +26,24 @@
 
 
     <link href="jspsych.css" rel="stylesheet" type="text/css"></link>
+    <style>
+      .jspsych-btn {
+        font-size: 30px;
+        padding: 3px 20px;
+        background-color: #0000EE;
+        color: white;
+        border-color: #0000EE;
+      }
+    </style>
 
   </head>
   <body oncontextmenu="return false;"></body>   <!-- disables right click! -->
   <script> 
     // // Set the canvas size in pixel
-    const canvas_width_px = 1700;
+    const canvas_width_px = window.innerWidth*0.93; // 93% of the window width
 
-    const button_format = '<button class="jspsych-btn" style = "font-size:30px; padding: 3px 20px; background-color:rgb(240,240,240)">%choice%</button>'
+    const button_format = '<button class="jspsych-btn" '+
+    'style = "font-size:30px; padding: 3px 20px; background-color:#0000EE; color: white; border-color: #0000EE;">%choice%</button>'
 
     // set the theme
 
@@ -140,6 +150,8 @@
         {prompt:'<h2>What is your age?<br></h2><h3><i>Wat is je leeftijd?</i></h3>', placeholder: '...', rows:1, columns: 4, required:true},
         {prompt:'<br><br><h2>What is your gender?<br></h2><h3><i>Wat is je geslacht?</i></h3>', placeholder: '...', rows:1, columns:10, required:true}
       ],
+      
+      button_html: button_format,
       on_finish: function(data){
           data.stimulus = "Age and Gender"
           let rand_id = jsPsych.randomization.randomID(15);
@@ -185,7 +197,7 @@
     let message1 = {
       type: jsPsychImageButtonResponse,
       stimulus: instruction_image,
-      stimulus_width: 1400,
+      stimulus_width: canvas_width_px*0.9,
       prompt: '<div style = "position:fixed; top:80px; left:50%; transform: translate(-50%, -50%);">'+ betweter_logo_svg +'</div>'+'<h3>This is what you need to do.</h3><h3>If you think you got it, click on the button to practice.</h3>',
       choices:['Practice!'],
       button_html: button_format,
