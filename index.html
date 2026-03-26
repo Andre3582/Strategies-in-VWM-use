@@ -29,11 +29,19 @@
     <style>
       .jspsych-btn {
         font-size: 30px;
+        font-weight: bold;
         padding: 3px 20px;
-        background-color: #0000EE;
+        background-color: #0109a6;
         color: white;
-        border-color: #0000EE;
+        border-color: #0000EE00;
       }
+        /* change color on hover */ 
+      .jspsych-btn:hover {
+          background-color:#0000EE ;
+          border-color: #0109a6;
+       };
+        
+       
     </style>
 
   </head>
@@ -42,8 +50,8 @@
     // // Set the canvas size in pixel
     const canvas_width_px = window.innerWidth*0.93; // 93% of the window width
 
-    const button_format = '<button class="jspsych-btn" '+
-    'style = "font-size:30px; padding: 3px 20px; background-color:#0000EE; color: white; border-color: #0000EE;">%choice%</button>'
+    // const button_format = '<button class="jspsych-btn" '+
+    // 'style = "font-size:30px; padding: 3px 20px; background-color:#0000EE; color: white; border-color: #0000EE;">%choice%</button>'
 
     // set the theme
 
@@ -128,7 +136,7 @@
       type: jsPsychHtmlButtonResponse,
       stimulus:'<h1>This is a demo of the copying task for a <a href="https://osf.io/rm423/" target="_blank">research project</a> by Andre Sahakian.</h1><h3>When you finish the task you will have the option to save your data in a public data repository</h3>',
       choices:['Continue'],
-      button_html: button_format,
+      // button_html: button_format,
       // on_load: function (params){
       //               var button = document.getElementById("jspsych-image-button-response-btngroup");
       //               button.style.visibility = "hidden";
@@ -151,7 +159,7 @@
         {prompt:'<br><br><h2>What is your gender?<br></h2><h3><i>Wat is je geslacht?</i></h3>', placeholder: '...', rows:1, columns:10, required:true}
       ],
       
-      button_html: button_format,
+      // button_html: button_format,
       on_finish: function(data){
           data.stimulus = "Age and Gender"
           let rand_id = jsPsych.randomization.randomID(15);
@@ -200,14 +208,14 @@
       stimulus_width: canvas_width_px*0.9,
       prompt: '<div style = "position:fixed; top:80px; left:50%; transform: translate(-50%, -50%);">'+ betweter_logo_svg +'</div>'+'<h3>This is what you need to do.</h3><h3>If you think you got it, click on the button to practice.</h3>',
       choices:['Practice!'],
-      button_html: button_format,
+      // button_html: button_format,
     };
 
     let message2 = {
       type: jsPsychHtmlButtonResponse,
       stimulus: "<h3>Perfect! Let's make it a little harder.</h3>",
       choices:['Practice again!'],
-      button_html: button_format,
+      // button_html: button_format,
     };
 
 
@@ -223,7 +231,7 @@
       },
       choices:['START'],
       post_trial_gap:300,
-      button_html: button_format,
+      // button_html: button_format,
     };
 
     let message4 = {
@@ -296,7 +304,7 @@
                '<br><h3>If not, you can close this page now.</h3>'
               },
       choices:["Upload my data to a public repository!"],
-      button_html: button_format,
+      // button_html: button_format,
 
       on_load: function (params){
               var button = document.getElementById("jspsych-image-button-response-btngroup");
